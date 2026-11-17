@@ -73,14 +73,18 @@ jobs:
         run: |
           set -e
           APK=$(ls app/build/outputs/apk/debug/*.apk | head -1)
-          ls -lh "$APK"
+          # 复制成固定文件名再上传：直链里写死 daka.apk，不能依赖构建产物名
+          cp "$APK" daka.apk
+          ls -lh daka.apk
           TITLE="打卡提醒 试用包 · build ${GITHUB_RUN_NUMBER}"
           NOTE=$(printf '提交 `%s` · 构建于 %s\n\n' "${GITHUB_SHA:0:7}" "$(date -u '+%Y-%m-%d %H:%M UTC')")
           NOTE="${NOTE}这是 **debug 签名**的试用包：装得上，但每次构建签名都不同，换包必须先卸载旧的（打卡记录会清掉）。"
           if gh release view latest >/dev/null 2>&1; then
-            gh release upload latest "$APK#daka.apk" --clobber
+            gh release upload latest daka.apk --clobber
             gh release edit latest --title "$TITLE" --notes "$NOTE"
           else
-            gh release create latest "$APK#daka.apk" --title "$TITLE" --notes "$NOTE"
+            gh release create latest daka.apk --title "$TITLE" --notes "$NOTE"
           fi
+          # 清掉旧名字的包，免得一个 Release 里躺两个 APK 让人选错
+          gh release delete-asset latest app-debug.apk -y 2>/dev/null || true
           echo "下载直链：https://github.com/${GITHUB_REPOSITORY}/releases/latest/download/daka.apk"
