@@ -2,7 +2,7 @@
 
 到点在桌面上浮出一张提醒卡片，点「已完成」立刻消失，平时屏幕上什么都不显示。支持左右滑动查看和安排任意一天的打卡。
 
-- 包名：`com.daka.reminder`
+- 包名：`com.daka.reminder.starter`（与正式版 `com.daka.reminder` 不同，可以和正式版同时装在一台手机上）
 - 适配：Android 8.0（API 26）及以上，小米 HyperOS / MIUI 可直接用
 - 体积：无任何第三方 SDK，只有 AndroidX + Material
 
@@ -544,5 +544,8 @@ app/src/main/java/com/daka/reminder/
 
 **Q：想改包名 / 应用名？**
 
-应用名改 `app/src/main/res/values/strings.xml` 里的 `app_name`。
-包名要同时改三处：`app/build.gradle.kts` 的 `namespace` 和 `applicationId`、`AndroidManifest.xml` 里各组件的前缀、以及 Kotlin 文件的 `package` 声明和目录名。
+应用名改 `app/src/main/res/values/strings.xml` 里的 `app_name`，改完和应用图标一起看效果即可，不需要动代码。
+
+包名（装到手机上的身份）就是 `app/build.gradle.kts` 里的 `applicationId` 一行，改它就够了。
+`namespace` 和 Kotlin 的 `package` 声明是代码内部的命名空间，跟装机身份无关，不必跟着改 —— 本仓库就是把
+`namespace` 保持为 `com.daka.reminder`、只把 `applicationId` 改成 `.starter`，所以两个版本能共存。
