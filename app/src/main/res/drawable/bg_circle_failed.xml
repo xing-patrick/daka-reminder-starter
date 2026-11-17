@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 判定打卡失败的任务：灰底灰叉，和「已完成」的实心绿区分开 -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="oval">
+    <solid android:color="@color/c_stroke" />
+</shape>

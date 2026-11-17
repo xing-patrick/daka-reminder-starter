@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">打卡提醒</string>
+
+    <string name="action_add">新建</string>
+    <string name="action_from_library">从库添加</string>
+    <string name="action_import">批量导入</string>
+    <string name="action_library">任务库</string>
+    <string name="action_edit">编辑</string>
+    <string name="action_delete">删除</string>
+    <string name="action_cancel">取消</string>
+    <string name="action_save">保存</string>
+    <string name="action_close">关闭</string>
+
+    <string name="library_title">任务库</string>
+    <string name="library_repeat_group">常规重复（每天 / 工作日 / 周末 / 自定义）</string>
+    <string name="library_legal_group">法定上班日 / 休息日</string>
+    <string name="library_once_group">单日模板</string>
+    <string name="library_action_edit">编辑</string>
+    <string name="library_empty">任务库还是空的，先建几条模板吧</string>
+
+    <string name="add_from_library_title">从任务库添加到这一天</string>
+    <string name="page_empty">这一天还没有打卡项\n点「从库添加」挑选，或点「新建」建一个只属于今天的</string>
+
+    <string name="menu_today">回到今天</string>
+    <string name="menu_permission">权限检查</string>
+    <string name="menu_test">预览提醒效果</string>
+    <string name="menu_clear">清空全部</string>
+    <string name="menu_holidays">节假日与调休</string>
+    <string name="menu_persistent">闹钟式持续提醒</string>
+    <string name="menu_watch">手表 / 手环推送</string>
+    <string name="menu_ringtone">提醒铃声</string>
+
+    <string name="ringtone_title">打卡提醒铃声</string>
+    <string name="ringtone_picker_title">选择打卡提醒铃声</string>
+    <string name="ringtone_pick_notification">从通知音里选…</string>
+    <string name="ringtone_pick_alarm">从闹钟铃里选…</string>
+    <string name="ringtone_pick_ringtone">从来电铃声里选…</string>
+    <string name="ringtone_restore_default">恢复系统默认通知音</string>
+    <string name="ringtone_silent">静音（不出声）</string>
+    <string name="ringtone_current_default">当前：系统默认通知音</string>
+    <string name="ringtone_current_silent">当前：静音</string>
+    <string name="ringtone_current_custom">当前：%1$s</string>
+    <string name="ringtone_saved">铃声已更新，点「预览提醒效果」试听</string>
+    <string name="ringtone_picker_missing">这个系统没有铃声选择器，试试用「预览提醒效果」确认当前铃声</string>
+    <string name="ringtone_hint">声音走通知音量，手机静音或勿扰时依然不会响。选本地文件如果没声音，换一个系统铃声即可。</string>
+
+    <string name="pick_date_title">选择日期</string>
+
+    <string name="perm_banner">还有权限没开，到点可能弹不出来。点这里设置</string>
+
+    <string name="row_edit_instance">编辑这一条</string>
+    <string name="row_remove">从这天移除</string>
+    <string name="row_remove_done">已移除，其他日期不受影响</string>
+    <string name="row_delete_task">删除模板</string>
+    <string name="row_readonly">过去的日期只能查看，不能补打卡</string>
+    <string name="row_failed_manual">已手动补上，本次错过了提醒</string>
+
+    <string name="edit_title_new">新建模板</string>
+    <string name="edit_title_edit">编辑模板</string>
+    <string name="edit_name_hint">名称，如 早起</string>
+    <string name="edit_time_label">提醒时间</string>
+    <string name="edit_kind_label">类型</string>
+    <string name="edit_repeat_label">重复</string>
+    <string name="edit_name_required">请填写名称</string>
+
+    <string name="edit_alert_label">提醒方式</string>
+    <string name="edit_sound">声音</string>
+    <string name="edit_vibrate">震动</string>
+    <string name="edit_alert_hint">两个都关，到点只弹卡片。声音跟随手机通知音量，手机静音或勿扰时不会响。</string>
+
+    <string name="kind_repeat">重复</string>
+    <string name="kind_once">单日</string>
+
+    <string name="rule_mode_label">排期规则</string>
+    <string name="mode_everyday">每天</string>
+    <string name="mode_weekday">工作日</string>
+    <string name="mode_weekend">周末</string>
+    <string name="mode_legal_workday">法定上班</string>
+    <string name="mode_legal_holiday">休息日</string>
+    <string name="mode_custom">自定义</string>
+
+    <string name="new_instance_title">新建当天任务</string>
+    <string name="edit_instance_title">编辑这一条</string>
+    <string name="edit_instance_hint">只修改这一天的这一条。任务库里的模板、其他日期的同名任务都不会变。改过之后，模板再改也不会覆盖它。</string>
+    <string name="once_template_hint">单日模板不指定日期。创建后，在任意日期页点「从库添加」把它加进去。同一模板可以加到多个日期，各天互不影响。</string>
+
+    <string name="import_title">批量导入</string>
+    <string name="import_hint">每行一条：名称 时间 规则。\n规则可写「每天 / 工作日 / 周末 / 法定上班日 / 休息日 / 单日」，也能写「一三五」「周一,周三」「1-5」自定义星期，或「11月8日」建单日模板。\n单日模板不指定日期，导入后到某一天点「从库添加」才会出现。不写规则默认每天，不写时间默认 08:00。</string>
+    <string name="import_hint_short">例如：早起 07:00 每天</string>
+    <string name="import_quick_label">点一下插入示例</string>
+    <string name="import_empty">没有解析到任何内容</string>
+
+    <string name="overlay_kicker">该打卡了</string>
+    <string name="overlay_done">已完成</string>
+    <string name="overlay_snooze">稍后 10 分钟</string>
+    <string name="overlay_give_up">放弃本次</string>
+    <string name="overlay_give_up_confirm">再点一次确认放弃</string>
+    <string name="overlay_meta_snoozed">已延迟 %1$d/%2$d</string>
+    <string name="overlay_meta_last_chance">最后一次机会</string>
+    <string name="snooze_pending">10 分钟后再提醒（第 %1$d/%2$d 次延迟）</string>
+    <string name="snooze_give_up_done">本次打卡判定失败，今天不再提醒。列表里会置灰，点一下还能手动补上</string>
+
+    <!-- 节假日与调休 -->
+    <string name="holiday_title">节假日与调休</string>
+    <string name="holiday_intro">「法定上班日」「休息日」两条规则靠这张表判断。休息日 = 周末 + 法定放假 − 调休补班，和法定上班日正好互补。优先从手机自带的节假日日历同步，读不到就手动粘贴导入。调休补班的优先级高于放假。</string>
+    <string name="holiday_sync">从日历同步</string>
+    <string name="holiday_import">手动导入</string>
+    <string name="holiday_clear">清空</string>
+    <string name="holiday_empty">还没有节假日数据\n点「从日历同步」或「手动导入」</string>
+    <string name="holiday_perm_denied">没有日历权限，读不到节假日。可以点「手动导入」自己粘一份。</string>
+    <string name="holiday_type_holiday">法定放假</string>
+    <string name="holiday_type_workday">调休补班（要上班）</string>
+    <string name="holiday_import_hint">每行一条：日期 + 休/班。支持 10月1日、2026-10-01、10/1，也支持 10/1-10/7 这样的区间。不写「班」默认按放假。</string>
+    <string name="holiday_import_hint_short">例如：10月1日-10月7日 休</string>
+
+    <!-- 持续提醒 / 手表 -->
+    <string name="persistent_on">已开启：必须点「已完成」或「稍后」才会停止响铃</string>
+    <string name="persistent_off">已关闭：提醒响一轮就停，卡片 15 分钟后收起</string>
+    <string name="watch_title">手表 / 手环推送</string>
+    <string name="watch_message">手表收的是「系统通知」，不是桌面悬浮卡片。华为手表通过「华为运动健康」把手机通知镜像到表上，通知是唯一通路，关掉通知手表就收不到。\n\n手表端只能看、不能操作：穿戴设备的通知镜像不显示按钮，在表上点通知也只是在表上查看，不会把动作回传给手机。所以通知里不放「已完成 / 放弃本次」，点手机上的那条通知也只是打开 App。打卡、稍后、放弃都在悬浮卡片上完成。</string>
+    <string name="watch_open_app">打开穿戴 App 设置</string>
+    <string name="watch_boost_on">开启推送增强（提高通知优先级）</string>
+    <string name="watch_boost_off">关闭推送增强</string>
+    <string name="watch_notify_on">开启通知（手表才能收到）</string>
+    <string name="watch_notify_off">关闭通知（手表将收不到，声音震动照旧）</string>
+    <string name="watch_repeat_on">开启重复提醒（每 20 秒再发一次，手表多震几轮）</string>
+    <string name="watch_repeat_off">关闭重复提醒（手表只震一次）</string>
+    <string name="watch_test">发一条测试通知到手表</string>
+    <string name="watch_no_app">没找到穿戴 App，请到应用商店装「华为运动健康」或对应手环 App</string>
+</resources>

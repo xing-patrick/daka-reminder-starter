@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="c_primary">#6ED0A0</color>
+    <color name="c_primary_dark">#4AAE80</color>
+    <color name="c_on_primary">#0B2018</color>
+
+    <color name="c_bg">#101312</color>
+    <color name="c_surface">#1C201E</color>
+    <color name="c_text">#EAEDEB</color>
+    <color name="c_text_dim">#8F9691</color>
+    <color name="c_stroke">#2E3330</color>
+    <color name="c_done">#6E7570</color>
+    <color name="c_warn_bg">#3A2E18</color>
+    <color name="c_warn_text">#FFD08A</color>
+    <color name="c_transparent">#00000000</color>
+</resources>

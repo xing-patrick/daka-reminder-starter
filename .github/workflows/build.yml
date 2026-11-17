@@ -1,0 +1,151 @@
+name: Build APK
+
+on:
+  push:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    # 发 Release 需要写权限。用的是仓库自带的 GITHUB_TOKEN，不用额外配 token
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      # 项目没有 gradle-wrapper.jar，显式装固定版本，不依赖 action 的版本推断
+      - name: Install Gradle 8.7
+        run: |
+          curl -fsSL -o /tmp/gradle.zip https://services.gradle.org/distributions/gradle-8.7-bin.zip
+          sudo unzip -q -o /tmp/gradle.zip -d /opt/gradle
+          sudo ln -sf /opt/gradle/gradle-8.7/bin/gradle /usr/local/bin/gradle
+          gradle --version | head -5
+
+      # 有些镜像不导出 ANDROID_HOME，缺了它 AGP 会直接报 "SDK location not found"
+      - name: Ensure Android SDK path
+        run: |
+          if [ -z "${ANDROID_HOME:-}" ] && [ -d /usr/local/lib/android/sdk ]; then
+            echo "ANDROID_HOME=/usr/local/lib/android/sdk" >> $GITHUB_ENV
+            echo "ANDROID_SDK_ROOT=/usr/local/lib/android/sdk" >> $GITHUB_ENV
+            echo "已补设 ANDROID_HOME"
+          fi
+          echo "ANDROID_HOME=${ANDROID_HOME:-未设置}"
+
+      # 环境诊断：万一再失败，日志里能直接看出缺什么
+      - name: Diagnostics
+        run: |
+          echo "=== ANDROID_HOME ==="
+          echo "$ANDROID_HOME"
+          echo "=== platforms ==="
+          ls "$ANDROID_HOME/platforms" 2>/dev/null || echo "(无 platforms)"
+          echo "=== build-tools ==="
+          ls "$ANDROID_HOME/build-tools" 2>/dev/null || echo "(无 build-tools)"
+          echo "=== cmdline-tools ==="
+          ls "$ANDROID_HOME/cmdline-tools" 2>/dev/null || echo "(无 cmdline-tools)"
+
+      - name: Accept Android SDK licenses
+        run: |
+          yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --licenses > /dev/null 2>&1 || true
+
+      # AGP 8.5 需要 platforms;android-34 + build-tools;34.0.0，缺失时补装
+      - name: Ensure SDK components
+        run: |
+          if [ -z "${ANDROID_HOME:-}" ]; then
+            echo "ANDROID_HOME 为空，跳过补装"
+            exit 0
+          fi
+          SM="$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager"
+          [ -x "$SM" ] || SM="$(command -v sdkmanager || true)"
+          if [ -x "$SM" ]; then
+            [ -d "$ANDROID_HOME/platforms/android-34" ] || (yes | "$SM" "platforms;android-34" || true)
+            [ -d "$ANDROID_HOME/build-tools/34.0.0" ] || (yes | "$SM" "build-tools;34.0.0" || true)
+          else
+            echo "找不到 sdkmanager，跳过补装"
+          fi
+
+      # 签名私钥不进公开仓库：配了 KEYSTORE_B64 就还原出来，没配就出未签名包。
+      # 生成方式：base64 -w0 keystore/daka-release.p12
+      - name: Restore keystore
+        env:
+          KEYSTORE_B64: ${{ secrets.KEYSTORE_B64 }}
+          DAKA_STORE_PASS: ${{ secrets.DAKA_STORE_PASS }}
+        run: |
+          if [ -n "${KEYSTORE_B64:-}" ]; then
+            mkdir -p keystore
+            printf '%s' "$KEYSTORE_B64" | base64 -d > keystore/daka-release.p12
+            if ! keytool -list -keystore keystore/daka-release.p12 -storetype PKCS12 \
+                 -storepass "${DAKA_STORE_PASS:-}" | head -6; then
+              echo "::error::JDK 读不了还原出来的 keystore，检查 KEYSTORE_B64 与 DAKA_STORE_PASS"
+              exit 1
+            fi
+          else
+            echo "未配置 KEYSTORE_B64：本次出未签名包（不能直接安装）"
+          fi
+
+      # 出的是 release 包，有 keystore 就用它签名：
+      # 签名一致，手机上装过一次之后，以后每次都能直接覆盖升级，不用卸载。
+      # 版本号加一个 1000 的偏移，保证永远大于手机上已装的旧版本（降级会被系统拒绝）。
+      - name: Build release APK
+        env:
+          DAKA_VERSION_CODE: ${{ 1000 + github.run_number }}
+          DAKA_VERSION_NAME: "1.1.${{ github.run_number }}"
+          DAKA_STORE_PASS: ${{ secrets.DAKA_STORE_PASS }}
+          DAKA_KEY_PASS: ${{ secrets.DAKA_KEY_PASS }}
+          DAKA_KEY_ALIAS: ${{ secrets.DAKA_KEY_ALIAS }}
+        run: gradle assembleRelease --no-daemon --stacktrace
+
+      # 打出签名指纹，一眼就能看出这次和上次是不是同一把 key
+      - name: Verify signature
+        run: |
+          AS="$ANDROID_HOME/build-tools/34.0.0/apksigner"
+          ls -lh app/build/outputs/apk/release/
+          APK="$(ls app/build/outputs/apk/release/*.apk | head -1)"
+          if [ -f keystore/daka-release.p12 ]; then
+            "$AS" verify --print-certs "$APK" | head -12
+          else
+            echo "未签名包，跳过签名校验（配好 KEYSTORE_B64 才会签名）"
+          fi
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: daka-reminder-apk
+          path: app/build/outputs/apk/release/*.apk
+          retention-days: 90
+
+      # 把 APK 挂到固定的 latest Release 上，以后固定从这个页面下，不用翻 Actions
+      # 只保留一条 Release，每次覆盖 asset，所以下载入口永远是最新包
+      # 未签名包不发布：装不上，挂上去只会让人下错
+      - name: Publish latest APK
+        if: success() && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master')
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -e
+          if [ ! -f keystore/daka-release.p12 ]; then
+            echo "未签名包不发布 Release，跳过"
+            exit 0
+          fi
+          APK="$(ls app/build/outputs/apk/release/*.apk | head -1)"
+          ls -lh "$APK"
+          TITLE="打卡提醒 v1.1.${GITHUB_RUN_NUMBER}"
+          NOTE="提交 \`${GITHUB_SHA:0:7}\` · 构建于 $(date -u '+%Y-%m-%d %H:%M UTC') · 版本号 1.1.${GITHUB_RUN_NUMBER}"
+          if gh release view latest >/dev/null 2>&1; then
+            gh release upload latest "$APK#daka.apk" --clobber
+            gh release edit latest --title "$TITLE" --notes "$NOTE"
+          else
+            gh release create latest "$APK#daka.apk" --title "$TITLE" --notes "$NOTE"
+          fi
+          # 清掉改名前的旧包，免得一条 Release 里躺两个 APK 让人选错
+          gh release delete-asset latest app-debug.apk -y 2>/dev/null || true
+          echo "已发布：https://github.com/${GITHUB_REPOSITORY}/releases/latest/download/daka.apk"
