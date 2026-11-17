@@ -1,0 +1,12 @@
+name: Probe
+
+# 临时探针：只用来确认 Actions 能否正常起 job，验证完就删
+on:
+  workflow_dispatch:
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Say hi
+        run: echo "actions ok"
