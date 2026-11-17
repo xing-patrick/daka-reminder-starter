@@ -8,7 +8,9 @@ android {
     compileSdk = 34
 
     defaultConfig {
-        applicationId = "com.daka.reminder"
+        // 故意与 namespace 不同：正式版占用 com.daka.reminder，
+        // 这里换一个包名，试用包才能和正式版同时装在手机上、互不影响。
+        applicationId = "com.daka.reminder.starter"
         minSdk = 26
         targetSdk = 34
         versionCode = 1
