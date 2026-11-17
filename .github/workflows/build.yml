@@ -57,6 +57,16 @@ jobs:
       - name: Build debug APK
         run: gradle assembleDebug --no-daemon --stacktrace
 
+      # 打出来的包到底是哪个包名，直接打在日志里，避免「改了没生效」这类怀疑
+      - name: Show APK package
+        run: |
+          APK=$(ls app/build/outputs/apk/debug/*.apk | head -1)
+          AAPT2="$ANDROID_HOME/build-tools/34.0.0/aapt2"
+          if [ -x "$AAPT2" ]; then
+            echo "APK 包名：$("$AAPT2" dump packagename "$APK" 2>/dev/null || echo '读取失败')"
+          fi
+          ls -lh "$APK"
+
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
