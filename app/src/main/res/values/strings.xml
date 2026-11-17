@@ -61,7 +61,6 @@
     <string name="edit_name_hint">名称，如 早起</string>
     <string name="edit_time_label">提醒时间</string>
     <string name="edit_kind_label">类型</string>
-    <string name="edit_repeat_label">重复</string>
     <string name="edit_name_required">请填写名称</string>
 
     <string name="edit_alert_label">提醒方式</string>

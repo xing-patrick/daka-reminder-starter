@@ -13,50 +13,15 @@
 
 ## 一、怎么拿到 APK
 
-这个仓库是公开的，推到 `main` 后 Actions 会自动编译，构建成功就覆盖更新同一个 Release（`latest`）。
+这个仓库只放源码和 **debug 试用包**，正式安装包不在这里发布。
 
-> **签名文件不在仓库里。** 公开仓库一旦躺了签名私钥，任何人都能签出同签名的 APK 冒充「升级包」，所以 `keystore/` 已被排除，仓库里也不写口令。
-> 想让它出「能直接覆盖升级」的包，在仓库 `Settings → Secrets and variables → Actions` 里配：
-> - `KEYSTORE_B64`：`base64 -w0 keystore/daka-release.p12` 的输出
-> - `DAKA_STORE_PASS` / `DAKA_KEY_PASS`：口令
-> - `DAKA_KEY_ALIAS`：别名（默认 `daka`）
->
-> 不配也能构建，只是产物**未签名**，手机上装不了。
+**自己编译**：装好 Android SDK 后执行 `gradle assembleDebug`，产物在 `app/build/outputs/apk/debug/`。
 
-### 下载 APK
+**用 CI 出的**：仓库页 → **Actions** → `Build APK` → 最新一条绿色运行 → 页面底部 `Artifacts` → `daka-reminder-apk`（zip，解压出 `app-debug.apk`，90 天过期）。
 
-**最省事的方式：Release 页面。**
-
-每次推送到 `main`，构建成功后会覆盖更新同一个 Release：
-
-1. 打开 `https://github.com/xing-patrick/daka-reminder-starter/releases/latest`
-2. 在 Assets 里点 **daka.apk** 直接下载（不用解压）
-3. 手机上打开安装。**装过一次之后，以后每次都是直接覆盖升级，不用卸载，打卡记录也不会丢**
-
-固定下载直链（可以直接存成手机浏览器的书签）：
-
-```
-https://github.com/xing-patrick/daka-reminder-starter/releases/latest/download/daka.apk
-```
-
-**备用方式：Actions 的 artifact**
-
-仓库页 → **Actions** → 左边 `Build APK` → 最新一条绿色运行 → 页面底部 `Artifacts` → `daka-reminder-apk`（是一个 zip，解压出 `app-release.apk`，90 天过期）。
-
-第一次编译约 3-5 分钟。如果变红了（失败），点进去看 `Build release APK` 那一步的日志，把报错发我。
-
-> 如果日志里 Release 那步报 `403` 或 `Resource not accessible by integration`，说明仓库的 token 权限是只读：
-> Settings → Actions → General → Workflow permissions → 选 **Read and write permissions** → Save，然后重跑一次。
-
-#### 为什么以前每次都要卸载重装
-
-CI 每次都在**全新的容器**里编译，AGP 默认的 debug 签名是当场随机生成的 —— 于是每个版本的签名都不同。Android 规定「同一个包名必须同一个签名才能覆盖安装」，签名一变就被当成另一个 App，只能卸载。
-
-现在改成用一把固定的 key 签名（文件走 Secrets 注入，见上一节），出的是 **release 包**，签名从此永远一致，可以直接覆盖升级。版本号取「1000 + 构建序号」，保证永远大于手机上已装的版本，系统才不会当降级拒装。
-
-> ⚠️ 换签名或换包名等于换一个 App：手机上已装的旧包无法覆盖，只能卸载重装，已有的打卡记录一起消失。
->
-> ⚠️ 签名私钥**只在你本地备份**，别提交进任何仓库。丢了就再也发不出能覆盖安装的更新，只能换包名重来。
+> debug 签名由构建机器当场生成，每次构建都不同。Android 要求同包名同签名才能覆盖安装，
+> 所以换一个构建出的包必须先卸载旧的，打卡记录会一起清掉。
+> 需要能覆盖升级的正式包，请用你自己的 keystore 在本地构建 —— 本仓库不提供签名配置。
 
 ---
 
@@ -505,8 +470,6 @@ app/src/main/java/com/daka/reminder/
 - **不用 App Widget**，因为你要的是「平时不显示」，Widget 做不到按需出现
 - **不用前台服务**，靠 BroadcastReceiver 直接 addView。窗口可见会提升进程优先级，实测足够
 - **不用 setFullScreenIntent**，避免 Android 14 对全屏通知的严格限制
-- **固定签名文件进仓库**（`keystore/daka-release.p12`）：CI 每次都是全新容器，默认 debug key 每次随机生成，签名一变就无法覆盖安装。代价是这个仓库不能公开
-- **版本号由 CI 的构建序号驱动**，不手工改。手工改容易忘，忘了就会出现「版本号相同 → 装不上」
 - **模板与实例分离**，这样「改某一天不影响其他日期」是天然成立的；模板传导是额外加的单向规则
 - **闹钟按实例 id 排期**，所以改某天某条的时间只会重排那一条
 - **声音用通知音量而不是闹钟音量**，宁可少打扰也不穿透静音；需要强制叫醒的场合用系统闹钟
