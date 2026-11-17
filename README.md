@@ -13,15 +13,23 @@
 
 ## 一、怎么拿到 APK
 
-这个仓库只放源码和 **debug 试用包**，正式安装包不在这里发布。
+### 直接下载（推荐）
 
-**自己编译**：装好 Android SDK 后执行 `gradle assembleDebug`，产物在 `app/build/outputs/apk/debug/`。
+每次推送到 `main`，构建成功后会覆盖更新同一个 Release，固定直链永远指向最新包：
 
-**用 CI 出的**：仓库页 → **Actions** → `Build APK` → 最新一条绿色运行 → 页面底部 `Artifacts` → `daka-reminder-apk`（zip，解压出 `app-debug.apk`，90 天过期）。
+```
+https://github.com/xing-patrick/daka-reminder-starter/releases/latest/download/daka.apk
+```
 
-> debug 签名由构建机器当场生成，每次构建都不同。Android 要求同包名同签名才能覆盖安装，
-> 所以换一个构建出的包必须先卸载旧的，打卡记录会一起清掉。
-> 需要能覆盖升级的正式包，请用你自己的 keystore 在本地构建 —— 本仓库不提供签名配置。
+也可以打开 [`releases/latest`](https://github.com/xing-patrick/daka-reminder-starter/releases/latest) 在 Assets 里点 **daka.apk**。不用登录，链接不会过期。
+
+### 自己编译
+
+装好 Android SDK 后执行 `gradle assembleDebug`，产物在 `app/build/outputs/apk/debug/`。
+
+> 这里发的是 **debug 签名的试用包**，不是正式版。debug 签名由构建机器当场生成，每次构建都不同；
+> Android 要求同包名同签名才能覆盖安装，所以换一个构建出的包**必须先卸载旧的**，打卡记录会一起清掉。
+> 需要能覆盖升级、数据不丢的正式包，用你自己的 keystore 在本地构建 —— 本仓库不提供签名配置，也不发布正式包。
 
 ---
 

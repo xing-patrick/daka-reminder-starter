@@ -1,10 +1,14 @@
 name: Build APK
 
-# 只出 debug 试用包，不发 Release、不签名。
+# 出 debug 试用包，构建成功后覆盖更新同一个 Release（下载直链永久固定）。
 on:
   push:
     branches: [ main ]
   workflow_dispatch:
+
+# 发布 Release 需要写权限；其余步骤只需要读
+permissions:
+  contents: write
 
 jobs:
   build:
@@ -59,3 +63,24 @@ jobs:
           name: daka-reminder-apk
           path: app/build/outputs/apk/debug/*.apk
           retention-days: 90
+
+      # 把 APK 挂到固定的 latest Release 上：直链永久有效、下载不用登录，也不用翻 Actions。
+      # 只保留这一条 Release，每次覆盖 asset，下载入口永远是最新包。
+      - name: Publish latest APK
+        if: success() && github.ref == 'refs/heads/main'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -e
+          APK=$(ls app/build/outputs/apk/debug/*.apk | head -1)
+          ls -lh "$APK"
+          TITLE="打卡提醒 试用包 · build ${GITHUB_RUN_NUMBER}"
+          NOTE=$(printf '提交 `%s` · 构建于 %s\n\n' "${GITHUB_SHA:0:7}" "$(date -u '+%Y-%m-%d %H:%M UTC')")
+          NOTE="${NOTE}这是 **debug 签名**的试用包：装得上，但每次构建签名都不同，换包必须先卸载旧的（打卡记录会清掉）。"
+          if gh release view latest >/dev/null 2>&1; then
+            gh release upload latest "$APK#daka.apk" --clobber
+            gh release edit latest --title "$TITLE" --notes "$NOTE"
+          else
+            gh release create latest "$APK#daka.apk" --title "$TITLE" --notes "$NOTE"
+          fi
+          echo "下载直链：https://github.com/${GITHUB_REPOSITORY}/releases/latest/download/daka.apk"
