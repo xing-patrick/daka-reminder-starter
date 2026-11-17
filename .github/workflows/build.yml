@@ -95,10 +95,14 @@ jobs:
       # 出的是 release 包，有 keystore 就用它签名：
       # 签名一致，手机上装过一次之后，以后每次都能直接覆盖升级，不用卸载。
       # 版本号加一个 1000 的偏移，保证永远大于手机上已装的旧版本（降级会被系统拒绝）。
+      - name: Compute version
+        run: |
+          echo "DAKA_VERSION_CODE=$(( 1000 + GITHUB_RUN_NUMBER ))" >> "$GITHUB_ENV"
+          echo "DAKA_VERSION_NAME=1.1.${GITHUB_RUN_NUMBER}" >> "$GITHUB_ENV"
+          tail -2 "$GITHUB_ENV"
+
       - name: Build release APK
         env:
-          DAKA_VERSION_CODE: ${{ 1000 + github.run_number }}
-          DAKA_VERSION_NAME: "1.1.${{ github.run_number }}"
           DAKA_STORE_PASS: ${{ secrets.DAKA_STORE_PASS }}
           DAKA_KEY_PASS: ${{ secrets.DAKA_KEY_PASS }}
           DAKA_KEY_ALIAS: ${{ secrets.DAKA_KEY_ALIAS }}
